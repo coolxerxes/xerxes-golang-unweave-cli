@@ -1,0 +1,58 @@
+project_name: unweave
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - id: unweave
+    main: ./main.go
+    binary: unweave
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      -w -s -X github.com/unweave/cli/config.Version={{.Version}}
+    goos:
+      - linux
+      - windows
+      - darwin
+
+brews:
+  - tap:
+      owner: unweave
+      name: homebrew-unweave
+    commit_author:
+      name: goreleaserbot
+      email: goreleaser@unweave.io
+
+    homepage: "https://unweave.io"
+    description: "Supabase for Machine Learning"
+    test: |
+      system "#{bin}/unweave"
+    install: |
+      bin.install "unweave"
+
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
+nfpms:
+  - maintainer: Unweave
+    homepage: https://github.com/unweave/cli
+    description: Unweave CLI
+    license: Apache-2.0
+    formats:
+      - deb
+      - apk
+      - rpm
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
